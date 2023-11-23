@@ -25,7 +25,6 @@ jobs:
         run: echo "::set-output name=BRANCH_NAME::$(git branch --show-current)"
 
       - name: Create Draft Release
-        if: success() && steps.branch_name.outputs.BRANCH_NAME == 'release'
         run: |
           CURRENT_VERSION=$(node -p "require('./package.json').version")
           PREVIOUS_VERSION=$(git tag -l | sort -V | tail -n 2 | head -n 1)
