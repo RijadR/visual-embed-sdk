@@ -11,14 +11,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Install gh CLI
+      - name: Install hub CLI
         run: |
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
-          sudo apt-add-repository https://cli.github.com/packages
           sudo apt-get update
-          sudo apt-get install gh
+          sudo apt-get install -y hub
 
       - name: Create Pull Request
         run: |
           # Create the pull request
-          gh pr create --base main --head release --title "Merge main into release"
+          hub pull-request -b main -h release -m "Merge main into release"
