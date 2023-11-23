@@ -1,19 +1,36 @@
-name: Auto Create PR
+# This is a basic workflow to help you get started with Actions
 
-on:
-  workflow_dispatch:
+name: publishToNPM
 
+# Controls when the action will run. Triggers the workflow on pull request
+# event
+on: workflow_dispatch
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  create-pr:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
+    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+            node-version: '16.19.0'
+            registry-url: 'https://registry.npmjs.org'
 
-      - name: Create Pull Request
+      - name: Get Branch Name
+        id: branch_name
+        run: echo "::set-output name=BRANCH_NAME::$(git branch --show-current)"
+
+      - name: Create Draft Release
+        if: success() && steps.branch_name.outputs.BRANCH_NAME == 'release'
         run: |
-          # Create the pull request
-          gh pr create --base main --head release --title "Merge main into release" --body "Merge main into release"
-        env: 
-          GH_TOKEN: ${{ github.token }}
+          # Extract version from package.json
+          VERSION=$(node -p "require('./package.json').version")
+          echo "Version: $VERSION"
+          gh release create "$VERSION" -t "Release $VERSION" -n "Release Notes for $VERSION" -d
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
