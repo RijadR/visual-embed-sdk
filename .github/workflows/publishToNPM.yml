@@ -1,35 +1,30 @@
-# This is a basic workflow to help you get started with Actions
+name: Manual PR Trigger
 
-name: publishToNPMTEST
+on:
+  workflow_dispatch:
+    inputs:
+      release_branch:
+        description: 'Release branch name'
+        required: true
 
-# Controls when the action will run. Triggers the workflow on pull request
-# event
-on: workflow_dispatch
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  create-pr:
     runs-on: ubuntu-latest
-    # Steps represent a sequence of tasks that will be executed as part of the job
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-            node-version: '16.19.0'
-            registry-url: 'https://registry.npmjs.org'
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-      - name: Get Branch Name
-        id: branch_name
-        run: echo "::set-output name=BRANCH_NAME::$(git branch --show-current)"
+      - name: Install create-pull-request
+        run: npm install -g create-pull-request
 
-      - name: Create Draft PR for Release
-        if: steps.branch_name.outputs.BRANCH_NAME == 'release'
+      - name: Create Pull Request
         run: |
-          echo "Creating draft PR for release branch..."
+          # Set the release branch name
+          RELEASE_BRANCH=$RELEASE_BRANCH_NAME
 
-          npm install -g create-pull-request
-          create-pull-request --title "Draft Release" --body "This is a draft PR for the next release. Please review and merge when ready." --labels "draft" --base "main" --branch "release"
+          # Create the pull request
+          create-pull-request --base main --head $RELEASE_BRANCH --title "Merge main into $RELEASE_BRANCH"
+
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_BRANCH_NAME: ${{ github.event.inputs.release_branch }}
