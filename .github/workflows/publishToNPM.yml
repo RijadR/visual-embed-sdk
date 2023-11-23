@@ -11,6 +11,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      - name: Set up Git
+        run: |
+          git config --global user.email "rijadkollam@gmail.com"
+          git config --global user.name "Rijad R"
+
       - name: Install hub CLI
         run: |
           sudo apt-get update
@@ -18,5 +23,8 @@ jobs:
 
       - name: Create Pull Request
         run: |
+          # Configure hub with GitHub token for authentication
+          echo ${{ secrets.GITHUB_TOKEN }} | hub auth login --stdin
+
           # Create the pull request
           hub pull-request -b main -h release -m "Merge main into release"
