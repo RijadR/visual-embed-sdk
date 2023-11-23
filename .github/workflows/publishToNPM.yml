@@ -14,6 +14,6 @@ jobs:
       - name: Create Pull Request
         run: |
           # Create the pull request
-          gh pr create --base main --head release --title "Merge main into release"
+          gh pr create --base main --head release --title "Merge main into release" --body "Merge main into release"
         env: 
           GH_TOKEN: ${{ github.token }}
