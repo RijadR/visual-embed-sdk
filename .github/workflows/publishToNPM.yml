@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: publishToNPM
+name: publishToNPMTEST
 
 # Controls when the action will run. Triggers the workflow on pull request
 # event
@@ -24,25 +24,12 @@ jobs:
         id: branch_name
         run: echo "::set-output name=BRANCH_NAME::$(git branch --show-current)"
 
-      # Run npm install
-      - name: Run npm install
-        run: npm install --legacy-peer-deps
-
-      # Runs docgen and publish
-      - name: Run docgen and publish
+      - name: Create Draft PR for Release
+        if: steps.branch_name.outputs.BRANCH_NAME == 'release'
         run: |
-          BRANCH_NAME="${{ steps.branch_name.outputs.BRANCH_NAME }}"
-          npm run docgen
-          if [ "$BRANCH_NAME" = "release" ]; then
-            echo "publish release"
-            npm run publish-prod
-          elif [ "$BRANCH_NAME" = "main" ]; then
-            echo "publish dev"
-            npm run publish-dev
-          else
-            echo "Stopping workflow for branch $BRANCH_NAME"
-            exit 1
-          fi
-          
+          echo "Creating draft PR for release branch..."
+
+          npm install -g create-pull-request
+          create-pull-request --title "Draft Release" --body "This is a draft PR for the next release. Please review and merge when ready." --labels "draft" --base "main" --branch "release"
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
