@@ -30,6 +30,8 @@ jobs:
           PREVIOUS_VERSION=$(git tag -l | sort -V | tail -n 2 | head -n 1)
           echo "Current Version: $CURRENT_VERSION"
           echo "Previous Version: $PREVIOUS_VERSION"
+          echo "List of tags:"
+          git tag -l
           # Extract commit messages between previous and current versions
           COMMIT_MESSAGES=$(git log --pretty=format:"%s" $PREVIOUS_VERSION..HEAD)
           echo "Commit Messages: $COMMIT_MESSAGES"
