@@ -1,30 +1,40 @@
-name: Manual PR Trigger
+# This is a basic workflow to help you get started with Actions
 
-on:
-  workflow_dispatch:
-    inputs:
-      release_branch:
-        description: 'Release branch name'
-        required: true
+name: publishToNPM
 
+# Controls when the action will run. Triggers the workflow on pull request
+# event
+on: workflow_dispatch
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  create-pr:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
+    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+            node-version: '16.19.0'
+            registry-url: 'https://registry.npmjs.org'
 
-      - name: Install create-pull-request
-        run: npm install -g create-pull-request
+      - name: Get Branch Name
+        id: branch_name
+        run: echo "::set-output name=BRANCH_NAME::$(git branch --show-current)"
 
-      - name: Create Pull Request
+      - name: Create Draft Release
         run: |
-          # Set the release branch name
-          RELEASE_BRANCH=$RELEASE_BRANCH_NAME
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          PREVIOUS_VERSION=$(git tag -l | sort -V | tail -n 2 | head -n 1)
+          echo "Current Version: $CURRENT_VERSION"
+          echo "Previous Version: $PREVIOUS_VERSION"
+          # Extract commit messages between previous and current versions
+          COMMIT_MESSAGES=$(git log --pretty=format:"%s" $PREVIOUS_VERSION..HEAD)
+          echo "Commit Messages: $COMMIT_MESSAGES"
 
-          # Create the pull request
-          create-pull-request --base main --head $RELEASE_BRANCH --title "Merge main into $RELEASE_BRANCH"
-
+          gh release create "$CURRENT_VERSION" -t "Release $CURRENT_VERSION" -n "Release Notes for $CURRENT_VERSION" -d <<< "$COMMIT_MESSAGES"        
         env:
-          RELEASE_BRANCH_NAME: ${{ github.event.inputs.release_branch }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
