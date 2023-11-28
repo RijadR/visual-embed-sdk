@@ -31,7 +31,7 @@ jobs:
           echo "Current Version: $CURRENT_VERSION"
           echo "Previous Version: $PREVIOUS_VERSION"
           echo "List of tags:"
-          git fetch --prune --unshallow --tags
+          git fetch --prune --depth=1 --unshallow --tags
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
           # Extract commit messages between previous and current versions
           COMMIT_MESSAGES=$(git log --pretty=format:"%s" $PREVIOUS_VERSION..HEAD)
