@@ -36,7 +36,7 @@ jobs:
           latest_tag=$(git for-each-ref --sort=-taggerdate --format '%(refname:short)' refs/tags | head -n 1)
           echo "Latest Tag: $latest_tag"
           # Extract commit messages between previous and current versions
-          COMMIT_MESSAGES=$(git log --pretty=format:"%s" $PREVIOUS_VERSION..HEAD)
+          COMMIT_MESSAGES=$(git log --pretty=format:"%s" $latest_tag..HEAD)
           echo "Commit Messages: $COMMIT_MESSAGES"
 
           gh release create "$CURRENT_VERSION" -t "Release $CURRENT_VERSION" -n "Release Notes for $CURRENT_VERSION" -d <<< "$COMMIT_MESSAGES"        
