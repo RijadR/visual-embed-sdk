@@ -38,8 +38,7 @@ jobs:
           # Extract commit messages between previous and current versions
           COMMIT_MESSAGES=$(git log --pretty=format:"%s" $latest_tag..HEAD)
           echo "Commit Messages: $COMMIT_MESSAGES"
-          echo "gh release create \"$CURRENT_VERSION\" -t \"Release $CURRENT_VERSION\" -n \"Release Notes for $CURRENT_VERSION\" -d <<< \"$COMMIT_MESSAGES\""
-          gh release create "$CURRENT_VERSION" -t "Release $CURRENT_VERSION" -n "Release Notes for $CURRENT_VERSION" -d <<< "$COMMIT_MESSAGES"      
+          gh release create "$CURRENT_VERSION" -t "Release $CURRENT_VERSION" -n "Release Notes for $CURRENT_VERSION $COMMIT_MESSAGES" -d      
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
